@@ -1,6 +1,6 @@
 cloudmetrics 
 --------------
-[![Build Status](https://snap-ci.com/savaki/cloudmetrics/branch/master/build_image)](https://snap-ci.com/savaki/cloudmetrics/branch/master)
+![CI](https://github.com/sc0Vu/cloudmetrics/workflows/Go/badge.svg) 
 [![GoDoc](https://godoc.org/github.com/sc0Vu/cloudmetrics?status.svg)](https://godoc.org/github.com/sc0Vu/cloudmetrics)
 
 This is a reporter for the [go-metrics](https://github.com/rcrowley/go-metrics)
