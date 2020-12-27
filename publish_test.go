@@ -16,11 +16,7 @@ package cloudmetrics
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
 	"sort"
-	"strings"
 	"testing"
 	"time"
 
@@ -31,8 +27,6 @@ import (
 )
 
 var debug = func(*Publisher) {}
-
-var debug2 = Debug(os.Stderr)
 
 type Mock struct {
 	Inputs []*cloudwatch.PutMetricDataInput
@@ -334,16 +328,6 @@ func TestPublish(t *testing.T) {
 
 	if len(mock.Inputs) == 0 {
 		t.Error("expected at least one datum to have been published")
-	}
-}
-
-func TestRegion(t *testing.T) {
-	lookupFunc := func(context.Context) (io.ReadCloser, error) {
-		return ioutil.NopCloser(strings.NewReader("us-east-1a")), nil
-	}
-
-	if v := region(lookupFunc); v != "us-east-1" {
-		t.Errorf("expected us-east-1; got %v", v)
 	}
 }
 

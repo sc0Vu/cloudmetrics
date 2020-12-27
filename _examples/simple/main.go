@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/rcrowley/go-metrics"
-	"github.com/savaki/cloudmetrics"
+	"github.com/sc0Vu/cloudmetrics"
 )
 
 func main() {

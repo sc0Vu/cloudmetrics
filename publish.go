@@ -17,10 +17,7 @@ package cloudmetrics
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -28,7 +25,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/rcrowley/go-metrics"
 	"golang.org/x/net/context"
-	"golang.org/x/net/context/ctxhttp"
 )
 
 // CloudWatch is an interface for *cloudwatch.CloudWatch that clearly identifies the functions
@@ -51,14 +47,6 @@ func (d Datums) Swap(i, j int) {
 	t := d[i]
 	d[i] = d[j]
 	d[j] = t
-}
-
-func lookupAvailabilityZone(ctx context.Context) (io.ReadCloser, error) {
-	resp, err := ctxhttp.Get(ctx, http.DefaultClient, "http://169.254.169.254/latest/meta-data/placement/availability-zone")
-	if err != nil {
-		return nil, err
-	}
-	return resp.Body, nil
 }
 
 type Publisher struct {
@@ -204,40 +192,10 @@ func (p *Publisher) pollMetrics() {
 	}
 }
 
-func region(lookupAZ func(context.Context) (io.ReadCloser, error)) string {
-	region := os.Getenv("AWS_REGION")
-
-	if region == "" {
-		region = os.Getenv("AWS_DEFAULT_REGION")
-	}
-
-	if region == "" {
-		ctx, _ := context.WithTimeout(context.Background(), time.Second)
-		body, err := lookupAZ(ctx)
-		if err == nil {
-			defer body.Close()
-
-			data, err := ioutil.ReadAll(body)
-			if err == nil {
-				region = strings.TrimSpace(string(data))
-				if len(region) > 0 {
-					region = region[0 : len(region)-1]
-				}
-			}
-		}
-	}
-
-	if region == "" {
-		region = "us-east-1"
-	}
-
-	return region
-}
-
 func client() CloudWatch {
-	cfg := &aws.Config{Region: aws.String(region(lookupAvailabilityZone))}
+	cfg := &aws.Config{}
 
-	return cloudwatch.New(session.New(cfg))
+	return cloudwatch.New(session.New(cfg.WithMaxRetries(3)))
 }
 
 func newPublisher(registry metrics.Registry, namespace string, configs ...func(*Publisher)) *Publisher {
