@@ -1,4 +1,4 @@
-module github.com/savaki/cloudmetrics
+module github.com/sc0Vu/cloudmetrics
 
 go 1.15
 
